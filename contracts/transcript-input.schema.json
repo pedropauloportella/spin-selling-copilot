@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TranscriptInput",
+  "type": "object",
+  "required": ["sessionId", "buyerUtterance"],
+  "properties": {
+    "sessionId": { "type": "string" },
+    "buyerUtterance": { "type": "string" },
+    "sellerUtterance": { "type": "string" },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "SITUATION",
+        "PROBLEM",
+        "IMPLICATION",
+        "NEED_PAYOFF",
+        "CTQ",
+        "BUSINESS_CASE",
+        "OFFER",
+        "CLOSE"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

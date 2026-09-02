@@ -1,0 +1,6 @@
+name = "sales-copilot-worker"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+[vars]
+ENVIRONMENT = "development"
