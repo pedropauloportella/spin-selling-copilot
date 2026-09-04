@@ -1,88 +1,44 @@
-import type {
-  ConversationAnalysis,
-  ConversationAnalyzer
-} from "./types";
+import type { ConversationAnalyzer } from "./analyzer";
+import type { ConversationAnalysis } from "./types";
+import type { SpinStage } from "../../domain/spin";
 
 export class MockAnalyzer implements ConversationAnalyzer {
-
   async analyze(input: {
     buyerUtterance: string;
-
     sellerUtterance?: string;
-
-    currentStage: ConversationAnalysis["detectedStage"];
-
+    currentStage: SpinStage;
     sector?: string;
   }): Promise<ConversationAnalysis> {
+    const text = [
+      input.buyerUtterance,
+      input.sellerUtterance ?? ""
+    ]
+      .join(" ")
+      .trim()
+      .toLowerCase();
 
-    const text = input.buyerUtterance.toLowerCase();
-
-    const problems = [];
-
-    if (
-      text.includes("poucos fecham") ||
+    const hasProblem =
+      text.includes("problema") ||
+      text.includes("perdendo") ||
       text.includes("baixa conversão") ||
-      text.includes("não viram matrícula")
-    ) {
-      problems.push({
-        description:
-          "Baixa conversão de leads em matrículas",
-
-        process: "Vendas",
-
-        confidence: 0.9
-      });
-    }
-
-    if (
-      text.includes("perdendo clientes") ||
-      text.includes("cancelamento") ||
-      text.includes("churn")
-    ) {
-      problems.push({
-        description:
-          "Perda de clientes",
-
-        process: "Retenção",
-
-        confidence: 0.9
-      });
-    }
-
-    if (
-      text.includes("demora") ||
-      text.includes("muito tempo para responder")
-    ) {
-      problems.push({
-        description:
-          "Tempo elevado de resposta",
-
-        process: "Atendimento",
-
-        confidence: 0.85
-      });
-    }
+      text.includes("poucos") ||
+      text.includes("poucas");
 
     return {
-      detectedStage:
-        problems.length > 0
-          ? "PROBLEM"
-          : input.currentStage,
-
-      stageConfidence:
-        problems.length > 0
-          ? 0.85
-          : 0.5,
-
-      problems,
-
-      metrics: [],
-
+      detectedStage: hasProblem ? "PROBLEM" : input.currentStage,
+      stageConfidence: hasProblem ? 0.85 : 0.7,
+      problems: hasProblem
+        ? [
+            {
+              description: text,
+              confidence: 0.8
+            }
+          ]
+        : [],
       impacts: [],
-
       facts: [],
-
-      hypotheses: []
+      hypotheses: [],
+      metrics: []
     };
   }
 }

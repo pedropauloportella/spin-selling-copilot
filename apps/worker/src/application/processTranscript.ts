@@ -1,57 +1,47 @@
-import type {
-  SalesContext
-} from "../domain/salesContext";
+import type { SalesContext } from "../domain/salesContext";
+import { MockAnalyzer } from "../infrastructure/ai/mockAnalyzer";
 
 import {
-  analyzeConversation
-} from "../application/analyzeConversation";
+  analyzeConversationIntelligence
+} from "../intelligence/conversationIntelligence";
 
 import {
-  MockAnalyzer
-} from "../infrastructure/ai/mockAnalyzer";
+  suggestNextQuestion
+} from "../domain/nextBestQuestion";
+
+export interface ProcessTranscriptInput {
+  sessionId: string;
+  transcript: string;
+  context: SalesContext;
+}
 
 export async function processTranscript(
-  input: Record<string, unknown>
+  input: ProcessTranscriptInput
 ) {
+  const analyzer = new MockAnalyzer();
 
-  const context =
-    input.context as SalesContext;
+const intelligence =
+  await analyzeConversationIntelligence(
+    analyzer,
+    {
+      buyerUtterance: input.transcript,
+      currentStage: input.context.spin.stage
+    }
+  );
 
-  const buyerUtterance =
-    String(
-      input.buyerUtterance ?? ""
-    );
-
-  const analyzer =
-    new MockAnalyzer();
-
-  const updatedContext =
-    await analyzeConversation(
-
-      context,
-
-      buyerUtterance,
-
-      analyzer
-    );
+  const nextQuestion =
+    suggestNextQuestion({
+      ...input.context,
+      spin: {
+        stage: intelligence.detectedStage,
+        confidence: intelligence.confidence
+      }
+    });
 
   return {
-    sessionId:
-      updatedContext.sessionId,
-
-    spin:
-      updatedContext.spin,
-
-    problems:
-      updatedContext.problems,
-
-    ctqs:
-      updatedContext.ctqs,
-
-    informationGaps:
-      updatedContext.informationGaps,
-
-    nextAction:
-      updatedContext.nextAction
+    sessionId: input.sessionId,
+    transcript: input.transcript,
+    intelligence,
+    nextQuestion
   };
 }
