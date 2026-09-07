@@ -1,6 +1,7 @@
 import type { Metric } from "../domain/metric";
 import type { SpinStage } from "../domain/spin";
 import type { ConversationAnalyzer } from "../infrastructure/ai/analyzer";
+import { buildSalesContext } from "./salesContextBuilder";
 
 import {
   analyzeQuantitativeData
@@ -24,6 +25,18 @@ export interface ConversationIntelligenceResult {
   metrics: Metric[];
 
   suggestedQuestion?: string;
+
+  nextAction?: {
+    type:
+      | "QUESTION"
+      | "CONFIRM"
+      | "SUMMARIZE"
+      | "OFFER"
+      | "CLOSE";
+    text: string;
+    reason: string;
+  };
+
 }
 
 export async function analyzeConversationIntelligence(
@@ -62,14 +75,25 @@ export async function analyzeConversationIntelligence(
     }))
   ];
 
-  return {
+  const result: ConversationIntelligenceResult = {
     ...aiResult,
     metrics,
     summary: completeText,
     detectedStage: aiResult.detectedStage,
     confidence: aiResult.stageConfidence,
     problem: aiResult.problems[0],
-    suggestedQuestion: aiResult.hypotheses[0],
-    
+    suggestedQuestion: aiResult.hypotheses[0]
+  };
+
+   const salesContext = buildSalesContext({
+    sessionId: `session-${Date.now()}`,
+    buyerUtterance: input.buyerUtterance,
+    sellerUtterance: input.sellerUtterance,
+    sector: input.sector,
+    intelligence: result
+  });
+return {
+    ...result,
+    nextAction: salesContext.nextAction
   };
 }

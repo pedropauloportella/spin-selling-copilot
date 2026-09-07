@@ -1,3 +1,4 @@
+//salesContext.ts
 import type { SpinStage } from "./spin";
 import type { Problem } from "./problem";
 import type { CTQ } from "./ctq";
