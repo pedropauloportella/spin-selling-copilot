@@ -1,17 +1,36 @@
-import type { SpinStage } from "../domain/spin";
+import type { SalesContext } from "../domain/salesContext";
 
-export function createSession(input: Record<string, unknown>) {
+export interface CreateSessionInput {
+  sellerId?: string;
+  buyer?: { name?: string; role?: string };
+  company?: { name?: string; sector?: string; size?: string };
+  recordingConsent: boolean;
+  retentionDays?: number;
+}
+
+export function createSession(input: CreateSessionInput) {
   const sessionId = crypto.randomUUID();
+
+  const context: SalesContext = {
+    sessionId,
+    sellerId: input.sellerId,
+    buyer: input.buyer ?? {},
+    company: input.company ?? {},
+    spin: { stage: "SITUATION", confidence: 1 },
+    conversation: {},
+    evidence: [],
+    problems: [],
+    ctqs: [],
+    impacts: [],
+    informationGaps: []
+  };
 
   return {
     sessionId,
     status: "ACTIVE",
     createdAt: new Date().toISOString(),
-    spin: {
-      stage: "SITUATION" as SpinStage,
-      confidence: 1
-    },
-    buyer: input.buyer ?? {},
-    company: input.company ?? {}
+    recordingConsent: input.recordingConsent,
+    retentionDays: input.retentionDays ?? 90,
+    context
   };
 }

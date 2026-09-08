@@ -1,0 +1,6 @@
+name: SPIN
+values:
+  - key: baseUrl
+    value: ''
+  - key: sessionId
+    value: ''

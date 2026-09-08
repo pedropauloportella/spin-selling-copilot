@@ -27,7 +27,15 @@ Seleciona a próxima intervenção.
 Futuramente interpreta linguagem natural e retorna objetos estruturados.
 
 ### 7. Persistence
-Supabase registra a sessão e os eventos.
+Supabase registra a sessão, o contexto estruturado (`sales_context`) e cada fala.
+O Worker usa a chave de serviço apenas no backend; ela nunca é enviada ao frontend.
+
+O processamento de uma fala segue esta ordem:
+
+1. recupera a sessão e confirma o consentimento;
+2. analisa a fala e atualiza o `SalesContext`;
+3. grava a fala e o contexto atualizado;
+4. devolve somente uma próxima ação ao vendedor.
 
 ## Regra de arquitetura
 

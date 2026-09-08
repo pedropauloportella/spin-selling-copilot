@@ -1,0 +1,29 @@
+$kind: http-request
+url: "{{baseUrl}}/sessions"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "recordingConsent": true,
+      "retentionDays": 90,
+      "buyer": {
+        "name": "João",
+        "role": "Sócio"
+      },
+      "company": {
+        "name": "Academia Exemplo",
+        "sector": "Fitness"
+      }
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('sessão criada', () => pm.response.to.have.status(201));
+      const response = pm.response.json();
+      pm.collectionVariables.set('sessionId', response.sessionId);
+      pm.test('sessionId retornado', () => pm.expect(response.sessionId).to.be.a('string').and.not.empty);
+    language: text/javascript
+order: 2000

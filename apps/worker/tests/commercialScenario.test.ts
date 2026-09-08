@@ -17,4 +17,17 @@ describe("Cenário comercial - academia", () => {
     expect(result.problems.length).toBeGreaterThan(0);
     expect(result.metrics).toEqual([]);
   });
+
+  it("reconhece uma conversão baixa expressa por quantidades", async () => {
+    const analyzer = new MockAnalyzer();
+
+    const result = await analyzer.analyze({
+      buyerUtterance: "Recebemos 600 leads por mês, mas apenas 40 viram matrícula.",
+      currentStage: "SITUATION",
+      sector: "academia"
+    });
+
+    expect(result.detectedStage).toBe("PROBLEM");
+    expect(result.problems).toHaveLength(1);
+  });
 });

@@ -1,47 +1,28 @@
 import type { SalesContext } from "../domain/salesContext";
+import type { ConversationAnalyzer } from "../infrastructure/ai/analyzer";
 import { MockAnalyzer } from "../infrastructure/ai/mockAnalyzer";
-
-import {
-  analyzeConversationIntelligence
-} from "../intelligence/conversationIntelligence";
-
-import {
-  suggestNextQuestion
-} from "../domain/nextBestQuestion";
+import { analyzeConversation } from "./analyzeConversation";
 
 export interface ProcessTranscriptInput {
   sessionId: string;
-  transcript: string;
+  buyerUtterance: string;
   context: SalesContext;
+  analyzer?: ConversationAnalyzer;
 }
 
 export async function processTranscript(
   input: ProcessTranscriptInput
 ) {
-  const analyzer = new MockAnalyzer();
-
-const intelligence =
-  await analyzeConversationIntelligence(
-    analyzer,
-    {
-      buyerUtterance: input.transcript,
-      currentStage: input.context.spin.stage
-    }
+  const context = await analyzeConversation(
+    structuredClone(input.context),
+    input.buyerUtterance,
+    input.analyzer ?? new MockAnalyzer()
   );
-
-  const nextQuestion =
-    suggestNextQuestion({
-      ...input.context,
-      spin: {
-        stage: intelligence.detectedStage,
-        confidence: intelligence.confidence
-      }
-    });
 
   return {
     sessionId: input.sessionId,
-    transcript: input.transcript,
-    intelligence,
-    nextQuestion
+    transcript: input.buyerUtterance,
+    context,
+    nextAction: context.nextAction
   };
 }

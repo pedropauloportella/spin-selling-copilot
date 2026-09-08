@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: 805bcd2b-5688-433c-b293-245a076ef292
+
+localResources:
+  collections:
+    - ..\Sales-Copilot.local.postman_collection.json
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ..\postman\collections\Sales Copilot — Local: feea921b-5f7c-479f-abf4-31b6c37639c3

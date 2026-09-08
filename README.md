@@ -59,9 +59,20 @@ Supabase / PostgreSQL
 - `docs` — documentação
 - `scripts` — automações
 
-## Próximo passo
+## Como executar
 
-Após criar o repositório, configurar:
+1. Aplique as migrations em ordem no projeto Supabase (`001_initial_schema.sql` e `002_session_context_and_consent.sql`).
+2. Configure `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` como secrets do Worker. A chave de serviço não deve ser exposta ao frontend.
+3. Em `apps/worker`, execute `npm run dev` para desenvolvimento ou `npm run deploy` para publicar.
+4. Crie uma sessão em `POST /sessions` com `recordingConsent: true` e envie falas do comprador para `POST /transcript`.
+
+## Próximas integrações
+
+O MVP processa transcrições textuais. Quando `OPENAI_API_KEY` e `OPENAI_MODEL` estão configurados, o Worker usa a Responses API com saída estruturada; se a chamada falhar ou as variáveis estiverem ausentes, usa o analisador determinístico de desenvolvimento. A integração de áudio/realtime continua fora do escopo atual.
+
+## Teste com Postman
+
+Importe [a collection local](postman/Sales-Copilot.local.postman_collection.json) no Postman, informe um JWT de usuário na variável `accessToken` e execute as requisições na ordem: `Health`, `Criar sessão` e `Processar transcrição`. A collection guarda automaticamente o `sessionId` retornado na segunda requisição.
 
 - GitHub
 - Supabase

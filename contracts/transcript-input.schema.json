@@ -6,20 +6,7 @@
   "properties": {
     "sessionId": { "type": "string" },
     "buyerUtterance": { "type": "string" },
-    "sellerUtterance": { "type": "string" },
-    "stage": {
-      "type": "string",
-      "enum": [
-        "SITUATION",
-        "PROBLEM",
-        "IMPLICATION",
-        "NEED_PAYOFF",
-        "CTQ",
-        "BUSINESS_CASE",
-        "OFFER",
-        "CLOSE"
-      ]
-    }
+    "sellerUtterance": { "type": "string" }
   },
   "additionalProperties": false
 }

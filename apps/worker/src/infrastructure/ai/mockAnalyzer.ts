@@ -22,7 +22,18 @@ export class MockAnalyzer implements ConversationAnalyzer {
       text.includes("perdendo") ||
       text.includes("baixa conversão") ||
       text.includes("poucos") ||
-      text.includes("poucas");
+      text.includes("poucas") ||
+      (
+        text.includes("lead") &&
+        (
+          text.includes("apenas") ||
+          text.includes("somente") ||
+          text.includes("só") ||
+          text.includes("matrícula") ||
+          text.includes("matricula") ||
+          text.includes("fecham")
+        )
+      );
 
     return {
       detectedStage: hasProblem ? "PROBLEM" : input.currentStage,

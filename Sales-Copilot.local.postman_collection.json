@@ -1,0 +1,103 @@
+{
+  "info": {
+    "_postman_id": "df445e13-051d-4aca-a4c2-8e41b8424811",
+    "name": "Sales Copilot — Local",
+    "description": "Collection para validar o MVP local. Inicie o Worker com `npm run dev` antes de executar as requisições.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8787"
+    },
+    {
+      "key": "sessionId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('serviço disponível', () => pm.response.to.have.status(200));",
+              "pm.test('resposta saudável', () => pm.expect(pm.response.json().ok).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Criar sessão",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"recordingConsent\": true,\n  \"retentionDays\": 90,\n  \"buyer\": {\n    \"name\": \"João\",\n    \"role\": \"Sócio\"\n  },\n  \"company\": {\n    \"name\": \"Academia Exemplo\",\n    \"sector\": \"Fitness\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/sessions"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('sessão criada', () => pm.response.to.have.status(201));",
+              "const response = pm.response.json();",
+              "pm.collectionVariables.set('sessionId', response.sessionId);",
+              "pm.test('sessionId retornado', () => pm.expect(response.sessionId).to.be.a('string').and.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Processar transcrição",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"buyerUtterance\": \"Recebemos 600 leads por mês, mas apenas 40 viram matrícula.\"\n}"
+        },
+        "url": "{{baseUrl}}/transcript"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('transcrição processada', () => pm.response.to.have.status(200));",
+              "const response = pm.response.json();",
+              "pm.test('estágio PROBLEM identificado', () => pm.expect(response.context.spin.stage).to.eql('PROBLEM'));",
+              "pm.test('CTQ de conversão identificado', () => pm.expect(response.context.ctqs.some(ctq => ctq.metric === 'lead_conversion_rate')).to.eql(true));",
+              "pm.test('próxima ação retornada', () => pm.expect(response.nextAction.type).to.eql('QUESTION'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

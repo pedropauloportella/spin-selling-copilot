@@ -1,0 +1,5 @@
+$kind: collection
+description: Collection para validar o MVP local. Inicie o Worker com `npm run dev` antes de executar as requisições.
+variables:
+  baseUrl: http://127.0.0.1:8787
+  sessionId: ""
